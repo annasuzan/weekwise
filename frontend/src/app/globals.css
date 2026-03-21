@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+@theme {
+  /* Light rustic palette — warm parchment, terracotta, olive */
+  --color-background: #faf6f0;
+  --color-surface: #f0ebe3;
+  --color-surface-hover: #e8e1d6;
+  --color-border: #d4c8b8;
+  --color-border-glow: #9e4a2e;
+  --color-primary: #8b3a1f;
+  --color-primary-hover: #6d2e18;
+  --color-accent: #5e7350;
+  --color-text: #3d2e1f;
+  --color-text-muted: #7a6b5b;
+  --color-text-dim: #a09484;
+
+  /* Stress heatmap colors — earthy tones */
+  --color-stress-low: #7a8b6f;
+  --color-stress-med: #c49a3c;
+  --color-stress-high: #b85c3c;
+
+  /* Type badge colors — warm tones */
+  --color-badge-exam: rgba(184, 92, 60, 0.12);
+  --color-badge-exam-text: #a04e32;
+  --color-badge-assignment: rgba(122, 139, 111, 0.12);
+  --color-badge-assignment-text: #5e7350;
+}
+
+/* ── Base styles ────────────────────────────────────────── */
+body {
+  background: var(--color-background);
+  color: var(--color-text);
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+/* ── Smooth scrollbar ───────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+/* ── Warm glow animation for buttons ────────────────────── */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 8px rgba(184, 92, 60, 0.2); }
+  50%      { box-shadow: 0 0 20px rgba(184, 92, 60, 0.35); }
+}
+
+.btn-glow:hover {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* ── Fade-in animation ──────────────────────────────────── */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in-up 0.5s ease-out forwards;
+}
+
+.animate-fade-in-delay {
+  animation: fade-in-up 0.5s ease-out 0.15s forwards;
+  opacity: 0;
+}
+
+.animate-fade-in-delay-2 {
+  animation: fade-in-up 0.5s ease-out 0.3s forwards;
+  opacity: 0;
+}
