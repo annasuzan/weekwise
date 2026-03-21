@@ -45,3 +45,6 @@ backend/apis/credentials.json
 backend/apis/token.json
 
 WeekWiseAPIs
+**/AGENTS.md 
+**/CLAUDE.md 
+**/README.md

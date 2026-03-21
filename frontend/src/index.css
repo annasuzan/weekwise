@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* 5-color palette: Navy · Teal · Sand · Amber · Crimson */
+    --background: 40 30% 96%;
+    --foreground: 200 80% 10%;
+
+    --card: 40 25% 99%;
+    --card-foreground: 200 80% 10%;
+
+    --popover: 40 25% 99%;
+    --popover-foreground: 200 80% 10%;
+
+    --primary: 200 80% 10%;
+    --primary-foreground: 40 30% 96%;
+
+    --secondary: 40 22% 91%;
+    --secondary-foreground: 200 80% 10%;
+
+    --muted: 40 18% 92%;
+    --muted-foreground: 200 15% 42%;
+
+    --accent: 178 55% 36%;
+    --accent-foreground: 40 30% 96%;
+
+    --destructive: 350 62% 40%;
+    --destructive-foreground: 40 30% 96%;
+
+    --border: 40 18% 86%;
+    --input: 40 18% 86%;
+    --ring: 178 55% 36%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 40 25% 99%;
+    --sidebar-foreground: 200 80% 10%;
+    --sidebar-primary: 178 55% 36%;
+    --sidebar-primary-foreground: 40 30% 96%;
+    --sidebar-accent: 40 22% 91%;
+    --sidebar-accent-foreground: 200 80% 10%;
+    --sidebar-border: 40 18% 86%;
+    --sidebar-ring: 178 55% 36%;
+
+    /* Subject accents — derived from the 5 colors */
+    --subject-rose: 350 62% 40%;
+    --subject-amber: 36 88% 50%;
+    --subject-emerald: 178 55% 36%;
+    --subject-blue: 200 80% 10%;
+    --subject-violet: 200 60% 22%;
+    --subject-teal: 178 40% 46%;
+
+    /* Stress tokens — navy → teal → amber → crimson */
+    --stress-none: 40 22% 91%;
+    --stress-low: 178 55% 56%;
+    --stress-medium: 36 88% 50%;
+    --stress-high: 350 50% 50%;
+    --stress-extreme: 350 62% 40%;
+
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-body: 'Inter', sans-serif;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+  .font-body {
+    font-family: var(--font-body);
+  }
+}
