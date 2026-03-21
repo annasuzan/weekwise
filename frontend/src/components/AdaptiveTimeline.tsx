@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Circle, Clock, Sparkles, Pencil } from 'lucide-react';
+import { CheckCircle2, Circle, Clock, Sparkles, Pencil, Trash2 } from 'lucide-react';
 import { type SyllabusEvent, getDailyTimeline, getSubjectColor } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import EditTaskDialog from '@/components/EditTaskDialog';
@@ -10,6 +10,7 @@ interface AdaptiveTimelineProps {
   selectedSubject: string | null;
   onToggleComplete: (id: string) => void;
   onEditEvent: (updated: SyllabusEvent) => void;
+  onDeleteEvent: (id: string) => void;
 }
 
 const TYPE_LABELS: Record<string, string> = {
@@ -21,7 +22,7 @@ const TYPE_LABELS: Record<string, string> = {
   participation: 'Participation',
 };
 
-const AdaptiveTimeline = ({ events, selectedSubject, onToggleComplete, onEditEvent }: AdaptiveTimelineProps) => {
+const AdaptiveTimeline = ({ events, selectedSubject, onToggleComplete, onEditEvent, onDeleteEvent }: AdaptiveTimelineProps) => {
   const [editingEvent, setEditingEvent] = useState<SyllabusEvent | null>(null);
 
   const filteredEvents = selectedSubject
@@ -32,7 +33,7 @@ const AdaptiveTimeline = ({ events, selectedSubject, onToggleComplete, onEditEve
   const daysWithEvents = timeline.filter(d => d.events.length > 0 || d.isToday);
 
   const upcoming = filteredEvents
-    .filter(e => !e.completed && new Date(e.dueDate) >= new Date('2026-03-21'))
+    .filter(e => !e.completed)
     .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
     .slice(0, 12);
 
@@ -53,20 +54,19 @@ const AdaptiveTimeline = ({ events, selectedSubject, onToggleComplete, onEditEve
       <div className="bg-card border border-border rounded-2xl p-5">
         <div className="flex items-center gap-2 mb-4">
           <div className="w-2 h-2 rounded-full bg-accent animate-pulse-soft" />
-          <span className="text-sm font-display font-semibold text-foreground">Today</span>
+          <span className="text-sm font-display font-semibold text-foreground">Tasks due today</span>
           <span className="text-xs text-muted-foreground font-body">Mar 21</span>
         </div>
         
         {daysWithEvents.find(d => d.isToday)?.events.length ? (
           <div className="space-y-2">
             {daysWithEvents.find(d => d.isToday)?.events.map(event => (
-              <TaskCard key={event.id} event={event} onToggle={onToggleComplete} onEdit={setEditingEvent} />
+              <TaskCard key={event.id} event={event} onToggle={onToggleComplete} onEdit={setEditingEvent} onDelete={onDeleteEvent} />
             ))}
           </div>
         ) : (
           <div className="flex items-center gap-2 text-muted-foreground py-2">
-            <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-body">Nothing due today — you're ahead! ✨</span>
+            <span className="text-sm font-body">Nothing due!</span>
           </div>
         )}
       </div>
@@ -84,12 +84,12 @@ const AdaptiveTimeline = ({ events, selectedSubject, onToggleComplete, onEditEve
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.03 }}
             >
-              <TaskCard event={event} onToggle={onToggleComplete} onEdit={setEditingEvent} showDate />
+              <TaskCard event={event} onToggle={onToggleComplete} onEdit={setEditingEvent} onDelete={onDeleteEvent} showDate />
             </motion.div>
           ))}
           {upcoming.length === 0 && (
             <p className="text-sm text-muted-foreground font-body py-4 text-center">
-              All caught up! 🎉
+              All caught up!
             </p>
           )}
         </div>
@@ -100,16 +100,18 @@ const AdaptiveTimeline = ({ events, selectedSubject, onToggleComplete, onEditEve
         open={!!editingEvent}
         onOpenChange={open => { if (!open) setEditingEvent(null); }}
         onSave={onEditEvent}
+        onDelete={onDeleteEvent}
         subjects={subjects}
       />
     </div>
   );
 };
 
-function TaskCard({ event, onToggle, onEdit, showDate }: { 
+function TaskCard({ event, onToggle, onEdit, onDelete, showDate }: { 
   event: SyllabusEvent; 
   onToggle: (id: string) => void; 
   onEdit: (event: SyllabusEvent) => void;
+  onDelete: (id: string) => void;
   showDate?: boolean;
 }) {
   const color = getSubjectColor(event.subject);
@@ -140,7 +142,7 @@ function TaskCard({ event, onToggle, onEdit, showDate }: {
           {showDate && (
             <span className="text-xs text-muted-foreground font-body flex items-center gap-1">
               <Clock className="w-3 h-3" />
-              {new Date(event.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              {new Date(event.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })}
             </span>
           )}
         </div>

@@ -87,3 +87,24 @@ export async function generateSummary(events, stress) {
   if (!res.ok) throw new Error("Failed to generate summary");
   return res.json();
 }
+
+/**
+ * Generate a persona-based weekly study plan.
+ * @param {Array} events - Academic events for the week
+ * @param {string[]} extraActivities - Extra-curricular activities
+ * @param {string} persona - "genz" | "gentle" | "drill"
+ * @returns {Promise<{plan: string}>}
+ */
+export async function generateWeeklyPlan(events, extraActivities, persona) {
+  const res = await fetch(`${API_BASE}/weekly-plan`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      events,
+      extra_activities: extraActivities,
+      persona,
+    }),
+  });
+  if (!res.ok) throw new Error("Failed to generate weekly plan");
+  return res.json();
+}

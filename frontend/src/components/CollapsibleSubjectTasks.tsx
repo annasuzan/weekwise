@@ -108,7 +108,7 @@ const CollapsibleSubjectTasks = ({ events, onToggleComplete }: CollapsibleSubjec
                             <td className="px-3 py-3">
                               <span className="text-sm text-muted-foreground font-body flex items-center gap-1.5">
                                 <Calendar className="w-3.5 h-3.5" />
-                                {new Date(event.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                                {new Date(event.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })}
                               </span>
                             </td>
                             <td className="px-3 py-3">

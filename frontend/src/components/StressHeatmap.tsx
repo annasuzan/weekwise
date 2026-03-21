@@ -8,17 +8,22 @@ interface StressHeatmapProps {
 }
 
 const getStressStyle = (level: number) => {
-  if (level === 0) return { bg: 'bg-secondary', size: 36, label: 'Chill ✨', emoji: '😌' };
-  if (level <= 2) return { bg: 'bg-stress-low', size: 40, label: 'Low', emoji: '😊' };
-  if (level <= 4) return { bg: 'bg-stress-medium/70', size: 48, label: 'Medium', emoji: '🤔' };
-  if (level <= 6) return { bg: 'bg-stress-medium', size: 54, label: 'Busy', emoji: '😅' };
-  if (level <= 8) return { bg: 'bg-stress-high', size: 60, label: 'High', emoji: '😬' };
-  return { bg: 'bg-stress-extreme', size: 66, label: 'Crunch 🔥', emoji: '🤯' };
+  if (level === 0) return { bg: 'bg-secondary', size: 36, label: 'Chill', emoji: '' };
+  if (level <= 2) return { bg: 'bg-stress-low', size: 40, label: 'Low', emoji: '' };
+  if (level <= 4) return { bg: 'bg-stress-medium/70', size: 48, label: 'Medium', emoji: '' };
+  if (level <= 6) return { bg: 'bg-stress-medium', size: 54, label: 'Busy', emoji: '' };
+  if (level <= 8) return { bg: 'bg-stress-high', size: 60, label: 'Heavy', emoji: '' };
+  return { bg: 'bg-stress-extreme', size: 66, label: 'Crunch', emoji: '' };
 };
 
 const StressHeatmap = ({ events }: StressHeatmapProps) => {
   const weeks = getWeeklyStress(events);
   const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
+
+  // Determine which week is "now"
+  const semesterStart = new Date('2026-01-19');
+  const today = new Date('2026-03-21');
+  const currentWeekIndex = Math.floor((today.getTime() - semesterStart.getTime()) / (7 * 86400000));
 
   return (
     <div className="space-y-5">
@@ -34,6 +39,7 @@ const StressHeatmap = ({ events }: StressHeatmapProps) => {
         {weeks.map((week, i) => {
           const style = getStressStyle(week.level);
           const isSelected = selectedWeek === i;
+          const isCurrentWeek = i === currentWeekIndex;
 
           return (
             <Tooltip key={i} delayDuration={0}>
@@ -42,29 +48,33 @@ const StressHeatmap = ({ events }: StressHeatmapProps) => {
                   onClick={() => setSelectedWeek(isSelected ? null : i)}
                   className={`rounded-full flex items-center justify-center transition-all relative ${style.bg} ${
                     isSelected ? 'ring-2 ring-accent ring-offset-2' : ''
-                  } ${week.level > 6 ? 'text-card' : 'text-foreground/60'}`}
+                  } ${isCurrentWeek && !isSelected ? 'ring-2 ring-accent ring-offset-1 shadow-md shadow-accent/25' : ''} ${
+                    week.level > 6 ? 'text-card' : 'text-foreground/60'
+                  }`}
                   style={{ width: style.size, height: style.size }}
                   whileHover={{ scale: 1.15 }}
                   whileTap={{ scale: 0.95 }}
                   initial={{ opacity: 0, scale: 0.5 }}
                   animate={{
                     opacity: 1,
-                    scale: 1,
+                    scale: isCurrentWeek ? 1.1 : 1,
                     borderRadius: week.level > 6
                       ? '60% 40% 30% 70% / 60% 30% 70% 40%'
                       : '50%',
                   }}
                   transition={{ delay: i * 0.03, duration: 0.3 }}
                 >
-                  <span className="text-[10px] font-body font-semibold">
-                    W{week.week}
+                  <span className={`text-[10px] font-body font-semibold ${isCurrentWeek ? (week.level > 6 ? 'text-white' : 'text-accent') : ''}`}>
+                    {isCurrentWeek ? 'You' : `W${week.week}`}
                   </span>
                 </motion.button>
               </TooltipTrigger>
               <TooltipContent side="top" className="font-body text-xs">
-                <p className="font-semibold">Week {week.week} — {style.label} {style.emoji}</p>
+                <p className="font-semibold">
+                  Week {week.week}{isCurrentWeek ? ' (Current)' : ''}: {style.label}
+                </p>
                 <p className="text-muted-foreground">
-                  {new Date(week.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                  {new Date(week.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })}
                   {' · '}{week.events.length} item{week.events.length !== 1 ? 's' : ''}
                 </p>
               </TooltipContent>
@@ -86,7 +96,7 @@ const StressHeatmap = ({ events }: StressHeatmapProps) => {
             />
           );
         })}
-        <span className="text-[10px] text-muted-foreground font-body">More 🔥</span>
+        <span className="text-[10px] text-muted-foreground font-body">More</span>
       </div>
 
       {/* Selected week detail */}
@@ -113,14 +123,14 @@ const StressHeatmap = ({ events }: StressHeatmapProps) => {
                       e.type === 'project' ? 'bg-stress-high' :
                       'bg-stress-low'
                     }`} />
-                    <span className="text-foreground">{e.title}</span>
-                    <span className="text-muted-foreground ml-auto">{e.subject}</span>
-                    {e.weight && <span className="text-muted-foreground">{e.weight}%</span>}
+                    <span className="text-foreground flex-1">{e.title}</span>
+                    <span className="text-muted-foreground text-right shrink-0">{e.subject}</span>
+                    {e.weight && <span className="text-muted-foreground shrink-0">{e.weight}%</span>}
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-muted-foreground font-body">Nothing due this week ✨</p>
+              <p className="text-xs text-muted-foreground font-body">Nothing due this week</p>
             )}
           </motion.div>
         )}

@@ -63,8 +63,6 @@ const DailyTodo = ({ events, onToggleComplete }: DailyTodoProps) => {
   const toggleTodo = (id: string) => {
     setTodos(prev => prev.map(t => {
       if (t.id === id) {
-        // Also toggle the linked event if exists
-        if (t.eventId && !t.done) onToggleComplete(t.eventId);
         return { ...t, done: !t.done };
       }
       return t;
@@ -132,11 +130,11 @@ const DailyTodo = ({ events, onToggleComplete }: DailyTodoProps) => {
                 <span className={`flex-1 text-xs font-body ${todo.done ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
                   {todo.label}
                 </span>
-                {color && (
+                {/* {color && (
                   <Badge variant="secondary" className={`text-[9px] px-1.5 py-0 font-body ${color.text}`}>
                     {linkedEvent!.subject}
                   </Badge>
-                )}
+                )} */}
                 <button
                   onClick={() => removeTodo(todo.id)}
                   className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"

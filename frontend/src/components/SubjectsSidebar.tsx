@@ -9,15 +9,6 @@ interface SubjectsSidebarProps {
   onToggleComplete: (id: string) => void;
 }
 
-const TYPE_EMOJI: Record<string, string> = {
-  exam: '📝',
-  project: '🚀',
-  assignment: '📄',
-  quiz: '❓',
-  lab: '🔬',
-  participation: '🙋',
-};
-
 const SubjectsSidebar = ({ events, selectedSubject, onSelectSubject, onToggleComplete }: SubjectsSidebarProps) => {
   const subjects = [...new Set(events.map(e => e.subject))];
 
@@ -111,7 +102,7 @@ const SubjectsSidebar = ({ events, selectedSubject, onSelectSubject, onToggleCom
                     </button>
                     <div className="flex-1 min-w-0">
                       <p className={`text-xs font-body truncate ${event.completed ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
-                        {TYPE_EMOJI[event.type] || ''} {event.title}
+                        {event.title}
                       </p>
                     </div>
                     {event.weight && (

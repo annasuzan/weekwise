@@ -5,64 +5,64 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { type SyllabusEvent } from '@/lib/types';
-import { Trash2 } from 'lucide-react';
 
-interface EditTaskDialogProps {
-  event: SyllabusEvent | null;
+interface AddTaskDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (updated: SyllabusEvent) => void;
-  onDelete?: (id: string) => void;
+  onAdd: (event: SyllabusEvent) => void;
   subjects: string[];
 }
 
 const TASK_TYPES: SyllabusEvent['type'][] = ['assignment', 'exam', 'project', 'quiz', 'lab', 'participation'];
 
-const EditTaskDialog = ({ event, open, onOpenChange, onSave, onDelete, subjects }: EditTaskDialogProps) => {
-  const [form, setForm] = useState<SyllabusEvent | null>(null);
+const EMPTY_FORM: SyllabusEvent = {
+  id: '',
+  title: '',
+  type: 'assignment',
+  dueDate: '',
+  weight: null,
+  subject: '',
+  completed: false,
+};
 
-  // Initialize form whenever dialog opens with an event
+const AddTaskDialog = ({ open, onOpenChange, onAdd, subjects }: AddTaskDialogProps) => {
+  const [form, setForm] = useState<SyllabusEvent>({ ...EMPTY_FORM });
+
   useEffect(() => {
-    if (open && event) {
-      setForm({ ...event });
-    } else if (!open) {
-      setForm(null);
+    if (open) {
+      setForm({
+        ...EMPTY_FORM,
+        id: `task-${Date.now()}`,
+        subject: subjects[0] || '',
+      });
     }
-  }, [open, event]);
-
-  const currentEvent = form ?? event;
-  if (!currentEvent) return null;
-
-  const handleOpen = (isOpen: boolean) => {
-    if (isOpen && event) setForm({ ...event });
-    if (!isOpen) setForm(null);
-    onOpenChange(isOpen);
-  };
-
-  const handleSave = () => {
-    if (currentEvent) {
-      onSave(currentEvent);
-      onOpenChange(false);
-      setForm(null);
-    }
-  };
+  }, [open, subjects]);
 
   const update = (partial: Partial<SyllabusEvent>) => {
-    setForm(prev => prev ? { ...prev, ...partial } : null);
+    setForm(prev => ({ ...prev, ...partial }));
   };
 
+  const handleAdd = () => {
+    if (!form.title.trim() || !form.dueDate || !form.subject) return;
+    onAdd(form);
+    onOpenChange(false);
+  };
+
+  const canSave = form.title.trim() && form.dueDate && form.subject;
+
   return (
-    <Dialog open={open} onOpenChange={handleOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md bg-card border-border">
         <DialogHeader>
-          <DialogTitle className="font-display text-foreground">Edit Task</DialogTitle>
+          <DialogTitle className="font-display text-foreground">Add Task</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 pt-2">
           <div className="space-y-1.5">
             <Label className="text-xs font-body text-muted-foreground">Title</Label>
             <Input
-              value={currentEvent.title}
+              value={form.title}
               onChange={e => update({ title: e.target.value })}
+              placeholder="e.g. Midterm Exam"
               className="font-body bg-background border-border"
             />
           </div>
@@ -70,9 +70,9 @@ const EditTaskDialog = ({ event, open, onOpenChange, onSave, onDelete, subjects 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label className="text-xs font-body text-muted-foreground">Subject</Label>
-              <Select value={currentEvent.subject} onValueChange={v => update({ subject: v })}>
+              <Select value={form.subject} onValueChange={v => update({ subject: v })}>
                 <SelectTrigger className="font-body bg-background border-border">
-                  <SelectValue />
+                  <SelectValue placeholder="Select subject" />
                 </SelectTrigger>
                 <SelectContent>
                   {subjects.map(s => (
@@ -84,7 +84,7 @@ const EditTaskDialog = ({ event, open, onOpenChange, onSave, onDelete, subjects 
 
             <div className="space-y-1.5">
               <Label className="text-xs font-body text-muted-foreground">Type</Label>
-              <Select value={currentEvent.type} onValueChange={v => update({ type: v as SyllabusEvent['type'] })}>
+              <Select value={form.type} onValueChange={v => update({ type: v as SyllabusEvent['type'] })}>
                 <SelectTrigger className="font-body bg-background border-border capitalize">
                   <SelectValue />
                 </SelectTrigger>
@@ -102,7 +102,7 @@ const EditTaskDialog = ({ event, open, onOpenChange, onSave, onDelete, subjects 
               <Label className="text-xs font-body text-muted-foreground">Due Date</Label>
               <Input
                 type="date"
-                value={currentEvent.dueDate}
+                value={form.dueDate}
                 onChange={e => update({ dueDate: e.target.value })}
                 className="font-body bg-background border-border"
               />
@@ -114,33 +114,21 @@ const EditTaskDialog = ({ event, open, onOpenChange, onSave, onDelete, subjects 
                 type="number"
                 min={0}
                 max={100}
-                value={currentEvent.weight ?? ''}
+                value={form.weight ?? ''}
                 onChange={e => update({ weight: e.target.value ? Number(e.target.value) : null })}
-                placeholder="—"
+                placeholder="Optional"
                 className="font-body bg-background border-border"
               />
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-2">
-            {onDelete && currentEvent ? (
-              <Button
-                variant="ghost"
-                onClick={() => { onDelete(currentEvent.id); onOpenChange(false); setForm(null); }}
-                className="font-body text-sm text-destructive hover:text-destructive hover:bg-destructive/10"
-              >
-                <Trash2 className="w-3.5 h-3.5 mr-1.5" />
-                Delete
-              </Button>
-            ) : <div />}
-            <div className="flex gap-2">
-              <Button variant="ghost" onClick={() => handleOpen(false)} className="font-body text-sm">
-                Cancel
-              </Button>
-              <Button onClick={handleSave} className="font-body text-sm">
-                Save Changes
-              </Button>
-            </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="ghost" onClick={() => onOpenChange(false)} className="font-body text-sm">
+              Cancel
+            </Button>
+            <Button onClick={handleAdd} disabled={!canSave} className="font-body text-sm">
+              Add Task
+            </Button>
           </div>
         </div>
       </DialogContent>
@@ -148,4 +136,4 @@ const EditTaskDialog = ({ event, open, onOpenChange, onSave, onDelete, subjects 
   );
 };
 
-export default EditTaskDialog;
+export default AddTaskDialog;

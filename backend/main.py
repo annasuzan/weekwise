@@ -23,8 +23,8 @@ from fastapi.responses import JSONResponse, RedirectResponse, Response
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
 
-from models import SyllabusInput, StressRequest, PlanRequest, SummaryRequest
-from llm_parser import parse_with_llm, generate_semester_summary
+from models import SyllabusInput, StressRequest, PlanRequest, SummaryRequest, WeeklyPlanRequest
+from llm_parser import parse_with_llm, generate_semester_summary, generate_weekly_plan
 from pdf_parser import extract_text_from_pdf
 from utils import compute_stress_scores, generate_study_plan
 
@@ -46,7 +46,11 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8080", "http://127.0.0.1:8080"],
+    allow_origins=[
+        "http://localhost:3000", "http://127.0.0.1:3000",
+        "http://localhost:5173", "http://127.0.0.1:5173",
+        "http://localhost:8080", "http://127.0.0.1:8080",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -220,6 +224,16 @@ def api_generate_plan(payload: PlanRequest, user=Depends(require_auth)):
 def api_generate_summary(payload: SummaryRequest, user=Depends(require_auth)):
     summary = generate_semester_summary(payload.events, payload.stress)
     return {"summary": summary}
+
+
+@app.post("/weekly-plan")
+def api_weekly_plan(payload: WeeklyPlanRequest):
+    """
+    Generate a persona-based weekly study plan.
+    Personas: genz, gentle, drill.
+    """
+    plan = generate_weekly_plan(payload.events, payload.extra_activities, payload.persona)
+    return {"plan": plan}
 
 
 @app.get("/")

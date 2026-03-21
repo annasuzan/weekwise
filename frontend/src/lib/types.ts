@@ -8,6 +8,33 @@ export interface SyllabusEvent {
   completed: boolean;
 }
 
+/** Backend event shape (snake_case) returned by /parse-syllabus and /upload-pdf */
+interface BackendEvent {
+  title: string;
+  type: string;
+  due_date: string;
+  weight: number | null;
+  subject?: string;
+}
+
+/** Convert a backend event to the frontend SyllabusEvent type. */
+export function mapBackendEvent(e: BackendEvent, index: number): SyllabusEvent {
+  const validTypes = ['assignment', 'exam', 'project', 'quiz', 'lab', 'participation'] as const;
+  const eventType = validTypes.includes(e.type as any)
+    ? (e.type as SyllabusEvent['type'])
+    : 'assignment';
+
+  return {
+    id: `parsed-${index}-${Date.now()}`,
+    title: e.title || 'Untitled Event',
+    subject: e.subject || 'General',
+    type: eventType,
+    dueDate: e.due_date || '2026-01-01',
+    weight: e.weight ?? null,
+    completed: false,
+  };
+}
+
 export interface SubjectColor {
   bg: string;
   text: string;
@@ -25,20 +52,16 @@ const PALETTE: SubjectColor[] = [
   { bg: 'bg-teal-50', text: 'text-teal-600', border: 'border-teal-200', accent: 'bg-teal-500', ring: 'ring-teal-200' },
 ];
 
-export const SUBJECT_COLORS: Record<string, SubjectColor> = {
-  'Big Data': PALETTE[0],
-  'CS-NY 6903': PALETTE[1],
-  'CS6903': PALETTE[3],
-  'Machine Learning': PALETTE[2],
-  'Algorithms': PALETTE[4],
-  'Networks': PALETTE[5],
-};
+// Track assigned colors by subject name — sequential, no repeats
+const _subjectColorMap = new Map<string, SubjectColor>();
+let _nextColorIndex = 0;
 
 export function getSubjectColor(subject: string): SubjectColor {
-  if (SUBJECT_COLORS[subject]) return SUBJECT_COLORS[subject];
-  let hash = 0;
-  for (let i = 0; i < subject.length; i++) hash = subject.charCodeAt(i) + ((hash << 5) - hash);
-  return PALETTE[Math.abs(hash) % PALETTE.length];
+  if (_subjectColorMap.has(subject)) return _subjectColorMap.get(subject)!;
+  const color = PALETTE[_nextColorIndex % PALETTE.length];
+  _subjectColorMap.set(subject, color);
+  _nextColorIndex++;
+  return color;
 }
 
 export const MOCK_EVENTS: SyllabusEvent[] = [
@@ -110,7 +133,7 @@ export function getDailyTimeline(events: SyllabusEvent[]): { date: string; label
     if (d === -1) label = 'Yesterday';
     else if (d === 0) label = 'Today';
     else if (d === 1) label = 'Tomorrow';
-    else label = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    else label = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' });
     
     days.push({
       date: dateStr,

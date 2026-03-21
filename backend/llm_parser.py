@@ -29,7 +29,7 @@ Each event must have exactly these fields:
 - "type": string — one of "exam" or "assignment" (use "exam" for midterms, finals, quizzes, tests; use "assignment" for everything else)
 - "due_date": string — date in YYYY-MM-DD format (if only month is given, use the 15th; if no year, assume 2026)
 - "weight": number or null — percentage weight of the grade (e.g., 30 means 30%)
-- "subject": string — the course or subject name (e.g., "CS 101", "Linear Algebra"). Infer from the syllabus header, filename, or course title.
+- "subject": string — the course or subject name (e.g., "CS 101", "Linear Algebra"). Infer from content of the PDF and course plan. Priority to the subject not being a code but rather a name.
 
 Example output:
 [
@@ -41,9 +41,11 @@ Important rules:
 1. Extract EVERY graded item you can find, even if weight is unknown (set weight to null).
 2. Be precise with dates — parse them carefully from the text.
 3. If the syllabus has a grading breakdown table, use it to assign weights.
-4. If a date range is given (e.g., "Week 5"), estimate the date based on context.
+4. If a date range is given (e.g., "Week 5"), estimate the date based on context. If you cannot estimate ensure that you cap the date to May 5th. 
 5. Always include the subject/course name. If multiple syllabi are provided, distinguish events by their source course.
-6. Respond with ONLY the JSON array — no other text."""
+6. If there is a mention of "Problem Sets" divide into 3 or 4 assignments and distribute the weight equally among them. 
+7. If there is a mention of "Programming Lab" divide it into 5 equal parts. 
+8. Respond with ONLY the JSON array — no other text."""
 
 
 SUMMARY_PROMPT = """You are a Gen-Z academic advisor AI. Given a student's semester events and weekly stress scores,
@@ -126,6 +128,7 @@ def parse_with_llm(text: str) -> Optional[List[Dict]]:
 
         if validated:
             print(f"[LLM] Successfully extracted {len(validated)} events via Claude")
+            print(validated)
             return validated
 
         # Empty result — fall back
@@ -222,3 +225,117 @@ def _fallback_summary(events: List[Dict], stress: Dict[str, int]) -> Optional[st
         f"into manageable daily tasks. Start with the highest-weight items first."
     )
     return "\n\n".join(lines)
+
+
+# ── Weekly Plan Persona Prompts ─────────────────────────────
+
+WEEKLY_PLAN_PERSONAS = {
+    "genz": """You are a Gen-Z study buddy. Create a concise weekly study plan.
+Use casual language and slang naturally (slay, no cap, lowkey, bestie).
+
+STRUCTURE (strict):
+1. First: Write exactly 4 short sentences in your persona voice motivating the student and acknowledging their week. Reference specific tasks and extra-curricular activities they mentioned. End with something like "here's your game plan."
+2. Then a blank line.
+3. Then one line per day (Monday through Sunday):
+   "Monday: [task] (~Xh) | [task] (~Xh)"
+   - Include estimated hours for each task
+   - Max 2 tasks per day, each under 10 words
+   - If the student has an extra-curricular activity on a day, INCLUDE it and reduce study time
+   - No markdown, no bullet points, just plain lines""",
+
+    "gentle": """You are a kind, encouraging study coach. Create a concise weekly study plan.
+Use warm, supportive language with gentle reminders.
+
+STRUCTURE (strict):
+1. First: Write exactly 4 short sentences in your persona voice warmly encouraging the student. Acknowledge their workload and any extra-curricular activities they mentioned. End with something reassuring.
+2. Then a blank line.
+3. Then one line per day (Monday through Sunday):
+   "Monday: [task] (~Xh) | [task] (~Xh)"
+   - Include estimated hours for each task
+   - Max 2 tasks per day, each under 10 words
+   - If the student has an extra-curricular activity on a day, INCLUDE it and reduce study time
+   - No markdown, no bullet points, just plain lines""",
+
+    "drill": """You are a DRILL SERGEANT study coach. Create a concise weekly study plan.
+USE CAPS FOR EMPHASIS. Be intense but supportive. Tough love.
+
+STRUCTURE (strict):
+1. First: Write exactly 4 short sentences in your DRILL SERGEANT voice pumping up the student. Acknowledge their missions (tasks) and any extra-curricular ops. Use military metaphors. End with something like "HERE'S THE BATTLE PLAN."
+2. Then a blank line.
+3. Then one line per day (Monday through Sunday):
+   "Monday: [task] (~Xh) | [task] (~Xh)"
+   - Include estimated hours for each task
+   - Max 2 tasks per day, each under 10 words
+   - If the student has an extra-curricular activity on a day, INCLUDE it and reduce study time
+   - No markdown, no bullet points, just plain lines""",
+}
+
+
+def generate_weekly_plan(events: List[Dict], extra_activities: List[str], persona: str) -> str:
+    """
+    Generate a personalized weekly study plan using Claude,
+    tailored to the selected persona tone.
+    Falls back to a simple rule-based plan if no API key.
+    """
+    client = get_anthropic_client()
+
+    system_prompt = WEEKLY_PLAN_PERSONAS.get(persona, WEEKLY_PLAN_PERSONAS["genz"])
+
+    events_text = json.dumps(events, indent=2)
+    extras_text = "\n".join(f"- {a}" for a in extra_activities) if extra_activities else "None"
+
+    user_msg = (
+        f"Here are the student's academic events for this week:\n{events_text}\n\n"
+        f"Extra-curricular activities this week:\n{extras_text}\n\n"
+        f"Create a day-by-day study plan for this week (Mon-Sun) that accounts for "
+        f"both academic deadlines and extra-curricular commitments. "
+        f"Prioritize exams and high-weight assignments."
+    )
+
+    if client is None:
+        return _fallback_weekly_plan(events, extra_activities)
+
+    try:
+        print(f"[LLM] Generating weekly plan (persona: {persona})...")
+        message = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=1024,
+            system=system_prompt,
+            messages=[{"role": "user", "content": user_msg}]
+        )
+        plan = message.content[0].text.strip()
+        print(f"[LLM] Weekly plan generated ({len(plan)} chars)")
+        return plan
+    except Exception as e:
+        print(f"[LLM] Weekly plan error: {e}")
+        return _fallback_weekly_plan(events, extra_activities)
+
+
+def _fallback_weekly_plan(events: List[Dict], extra_activities: List[str]) -> str:
+    """Simple rule-based weekly plan when no LLM is available."""
+    if not events:
+        return "No events this week! Use the free time to review past material or get ahead."
+
+    lines = ["Here's your week at a glance:\n"]
+    days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+
+    exams = [e for e in events if e.get("type") == "exam"]
+    assignments = [e for e in events if e.get("type") != "exam"]
+
+    for i, day in enumerate(days):
+        tasks = []
+        if exams and i < 4:
+            tasks.append(f"Study for {exams[0].get('title', 'exam')} ({exams[0].get('subject', '')})")
+        if assignments and i % 2 == 0:
+            a = assignments[i // 2 % len(assignments)]
+            tasks.append(f"Work on {a.get('title', 'assignment')}")
+        if extra_activities and i >= 5:
+            tasks.append(f"Attend: {extra_activities[0]}")
+
+        if tasks:
+            lines.append(f"{day}: {'; '.join(tasks)}")
+        else:
+            lines.append(f"{day}: Light review or rest day")
+
+    return "\n".join(lines)
+
