@@ -3,3 +3,6 @@ uvicorn[standard]
 pdfplumber
 anthropic
 python-multipart
+python-jose[cryptography]
+httpx
+python-dotenv

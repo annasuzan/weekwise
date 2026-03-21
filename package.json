@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "express-session": "^1.19.0",
+    "google-auth-library": "^10.6.2",
+    "jsonwebtoken": "^9.0.3",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0"
+  }
+}
