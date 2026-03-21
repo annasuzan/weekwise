@@ -28,6 +28,13 @@ class SummaryRequest(BaseModel):
     events: List[dict]              # All parsed events
     stress: dict                    # Weekly stress scores
 
+
+class WeeklyPlanRequest(BaseModel):
+    """Request to generate a weekly study plan with persona tone."""
+    events: List[dict]              # Academic events for the week
+    extra_activities: List[str] = []  # Extra-curricular activities (e.g. "Hackathon Saturday")
+    persona: str = "genz"           # "genz" | "gentle" | "drill"
+
 class Event(BaseModel):
     """A single academic event extracted from the syllabus."""
     title: str

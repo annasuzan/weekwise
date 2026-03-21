@@ -1,0 +1,107 @@
+[
+    {
+        "title": "Assignment 1",
+        "type": "assignment",
+        "due_date": "2026-02-11",
+        "weight": 7.5,
+        "subject": "Big Data"
+    },
+    {
+        "title": "Assignment 2",
+        "type": "assignment",
+        "due_date": "2026-03-04",
+        "weight": 7.5,
+        "subject": "Big Data"
+    },
+    {
+        "title": "Midterm Exam",
+        "type": "exam",
+        "due_date": "2026-03-25",
+        "weight": 30,
+        "subject": "Big Data"
+    },
+    {
+        "title": "Assignment 3",
+        "type": "assignment",
+        "due_date": "2026-04-08",
+        "weight": 7.5,
+        "subject": "Big Data"
+    },
+    {
+        "title": "Assignment 4",
+        "type": "assignment",
+        "due_date": "2026-04-22",
+        "weight": 7.5,
+        "subject": "Big Data"
+    },
+    {
+        "title": "Final Project",
+        "type": "assignment",
+        "due_date": "2026-05-05",
+        "weight": 35,
+        "subject": "Big Data"
+    },
+    {
+        "title": "Problem Sets",
+        "type": "assignment",
+        "due_date": "2026-05-05",
+        "weight": 25,
+        "subject": "Principles of Database Systems"
+    },
+    {
+        "title": "Database Project Part 1",
+        "type": "assignment",
+        "due_date": "2026-04-15",
+        "weight": 12.5,
+        "subject": "Principles of Database Systems"
+    },
+    {
+        "title": "Database Project Part 2",
+        "type": "assignment",
+        "due_date": "2026-05-01",
+        "weight": 12.5,
+        "subject": "Principles of Database Systems"
+    },
+    {
+        "title": "Midterm Exam",
+        "type": "exam",
+        "due_date": "2026-03-24",
+        "weight": 20,
+        "subject": "Principles of Database Systems"
+    },
+    {
+        "title": "Final Exam",
+        "type": "exam",
+        "due_date": "2026-05-12",
+        "weight": 30,
+        "subject": "Principles of Database Systems"
+    },
+    {
+        "title": "Weekly Programming Labs",
+        "type": "assignment",
+        "due_date": "2026-05-05",
+        "weight": 20,
+        "subject": "Machine Learning"
+    },
+    {
+        "title": "Written Problem Sets",
+        "type": "assignment",
+        "due_date": "2026-05-05",
+        "weight": 20,
+        "subject": "Machine Learning"
+    },
+    {
+        "title": "Midterm Exam",
+        "type": "exam",
+        "due_date": "2026-03-15",
+        "weight": 25,
+        "subject": "Machine Learning"
+    },
+    {
+        "title": "Final Exam",
+        "type": "exam",
+        "due_date": "2026-05-05",
+        "weight": 25,
+        "subject": "Machine Learning"
+    }
+]

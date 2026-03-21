@@ -13,8 +13,8 @@ from typing import List
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 
-from models import SyllabusInput, StressRequest, PlanRequest, SummaryRequest
-from llm_parser import parse_with_llm, generate_semester_summary
+from models import SyllabusInput, StressRequest, PlanRequest, SummaryRequest, WeeklyPlanRequest
+from llm_parser import parse_with_llm, generate_semester_summary, generate_weekly_plan
 from pdf_parser import extract_text_from_pdf
 from utils import compute_stress_scores, generate_study_plan
 
@@ -108,6 +108,16 @@ def api_generate_summary(payload: SummaryRequest):
     """
     summary = generate_semester_summary(payload.events, payload.stress)
     return {"summary": summary}
+
+
+@app.post("/weekly-plan")
+def api_weekly_plan(payload: WeeklyPlanRequest):
+    """
+    Generate a persona-based weekly study plan.
+    Personas: genz, gentle, drill.
+    """
+    plan = generate_weekly_plan(payload.events, payload.extra_activities, payload.persona)
+    return {"plan": plan}
 
 
 @app.get("/")
