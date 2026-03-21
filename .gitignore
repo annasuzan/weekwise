@@ -40,3 +40,8 @@
 # typescript
 **/*.tsbuildinfo
 **/*next-env.d.ts
+
+backend/apis/credentials.json
+backend/apis/token.json
+
+WeekWiseAPIs
