@@ -6,9 +6,6 @@ from datetime import datetime, timedelta
 from typing import List, Dict
 from collections import defaultdict
 
-
-# ── Date Utilities ──────────────────────────────────────────────
-
 def parse_date(date_str: str) -> datetime:
     """Parse a YYYY-MM-DD string into a datetime object."""
     return datetime.strptime(date_str, "%Y-%m-%d")
@@ -34,9 +31,6 @@ def get_semester_start(events: List[Dict]) -> datetime:
     earliest = min(dates)
     # Round back to Monday of that week
     return earliest - timedelta(days=earliest.weekday())
-
-
-# ── Stress Calculation ──────────────────────────────────────────
 
 # Stress points per event type
 STRESS_WEIGHTS = {
@@ -72,8 +66,6 @@ def compute_stress_scores(events: List[Dict]) -> Dict[str, int]:
     # Sort by week number for clean output
     return dict(sorted(weekly_stress.items(), key=lambda x: int(x[0].split("_")[1])))
 
-
-# ── Study Plan Generation ──────────────────────────────────────
 
 def generate_study_plan(
     event: Dict,
