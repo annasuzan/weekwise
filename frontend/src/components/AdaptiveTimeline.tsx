@@ -66,7 +66,7 @@ const AdaptiveTimeline = ({ events, selectedSubject, onToggleComplete, onEditEve
         ) : (
           <div className="flex items-center gap-2 text-muted-foreground py-2">
             <Sparkles className="w-4 h-4" />
-            <span className="text-sm font-body">Nothing due today — you're ahead! ✨</span>
+            <span className="text-sm font-body">Nothing due today — you're ahead!</span>
           </div>
         )}
       </div>
@@ -89,7 +89,7 @@ const AdaptiveTimeline = ({ events, selectedSubject, onToggleComplete, onEditEve
           ))}
           {upcoming.length === 0 && (
             <p className="text-sm text-muted-foreground font-body py-4 text-center">
-              All caught up! 🎉
+              All caught up!
             </p>
           )}
         </div>

@@ -2,13 +2,16 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { BookOpen, CalendarDays, AlertTriangle, CheckCircle2, Zap } from 'lucide-react';
 import { MOCK_EVENTS, type SyllabusEvent } from '@/lib/types';
+import { useEvents } from '@/lib/EventContext';
 import SubjectsSidebar from '@/components/SubjectsSidebar';
 import AdaptiveTimeline from '@/components/AdaptiveTimeline';
 import StressHeatmap from '@/components/StressHeatmap';
 import DailyTodo from '@/components/DailyTodo';
 
 const DashboardPage = () => {
-  const [events, setEvents] = useState<SyllabusEvent[]>(MOCK_EVENTS);
+  const { events: contextEvents, hasRealData } = useEvents();
+  const [events, setEvents] = useState<SyllabusEvent[]>(hasRealData ? contextEvents : MOCK_EVENTS);
+
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
 
   const toggleComplete = (id: string) => {

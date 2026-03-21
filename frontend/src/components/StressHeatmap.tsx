@@ -8,12 +8,12 @@ interface StressHeatmapProps {
 }
 
 const getStressStyle = (level: number) => {
-  if (level === 0) return { bg: 'bg-secondary', size: 36, label: 'Chill ✨', emoji: '😌' };
-  if (level <= 2) return { bg: 'bg-stress-low', size: 40, label: 'Low', emoji: '😊' };
-  if (level <= 4) return { bg: 'bg-stress-medium/70', size: 48, label: 'Medium', emoji: '🤔' };
-  if (level <= 6) return { bg: 'bg-stress-medium', size: 54, label: 'Busy', emoji: '😅' };
-  if (level <= 8) return { bg: 'bg-stress-high', size: 60, label: 'High', emoji: '😬' };
-  return { bg: 'bg-stress-extreme', size: 66, label: 'Crunch 🔥', emoji: '🤯' };
+  if (level === 0) return { bg: 'bg-secondary', size: 36, label: 'Chill', emoji: '' };
+  if (level <= 2) return { bg: 'bg-stress-low', size: 40, label: 'Low', emoji: '' };
+  if (level <= 4) return { bg: 'bg-stress-medium/70', size: 48, label: 'Medium', emoji: '' };
+  if (level <= 6) return { bg: 'bg-stress-medium', size: 54, label: 'Busy', emoji: '' };
+  if (level <= 8) return { bg: 'bg-stress-high', size: 60, label: 'Heavy', emoji: '' };
+  return { bg: 'bg-stress-extreme', size: 66, label: 'Crunch', emoji: '' };
 };
 
 const StressHeatmap = ({ events }: StressHeatmapProps) => {
@@ -62,7 +62,7 @@ const StressHeatmap = ({ events }: StressHeatmapProps) => {
                 </motion.button>
               </TooltipTrigger>
               <TooltipContent side="top" className="font-body text-xs">
-                <p className="font-semibold">Week {week.week} — {style.label} {style.emoji}</p>
+                <p className="font-semibold">Week {week.week} — {style.label}</p>
                 <p className="text-muted-foreground">
                   {new Date(week.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   {' · '}{week.events.length} item{week.events.length !== 1 ? 's' : ''}
@@ -86,7 +86,7 @@ const StressHeatmap = ({ events }: StressHeatmapProps) => {
             />
           );
         })}
-        <span className="text-[10px] text-muted-foreground font-body">More 🔥</span>
+        <span className="text-[10px] text-muted-foreground font-body">More</span>
       </div>
 
       {/* Selected week detail */}
@@ -120,7 +120,7 @@ const StressHeatmap = ({ events }: StressHeatmapProps) => {
                 ))}
               </div>
             ) : (
-              <p className="text-xs text-muted-foreground font-body">Nothing due this week ✨</p>
+              <p className="text-xs text-muted-foreground font-body">Nothing due this week</p>
             )}
           </motion.div>
         )}

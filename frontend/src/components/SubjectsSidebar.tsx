@@ -10,12 +10,12 @@ interface SubjectsSidebarProps {
 }
 
 const TYPE_EMOJI: Record<string, string> = {
-  exam: '📝',
-  project: '🚀',
-  assignment: '📄',
-  quiz: '❓',
-  lab: '🔬',
-  participation: '🙋',
+  exam: 'E',
+  project: 'P',
+  assignment: 'A',
+  quiz: 'Q',
+  lab: 'L',
+  participation: 'S',
 };
 
 const SubjectsSidebar = ({ events, selectedSubject, onSelectSubject, onToggleComplete }: SubjectsSidebarProps) => {

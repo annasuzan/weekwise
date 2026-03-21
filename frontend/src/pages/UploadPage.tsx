@@ -1,16 +1,23 @@
 import { useState, useCallback } from 'react';
-import { FileUp, Type, ArrowRight, X, File } from 'lucide-react';
+import { FileUp, Type, ArrowRight, X, File, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { parseSyllabus, uploadPdf } from '@/lib/api';
+import { mapBackendEvent } from '@/lib/types';
+import { useEvents } from '@/lib/EventContext';
+import { useToast } from '@/hooks/use-toast';
 
 const UploadPage = () => {
   const [mode, setMode] = useState<'text' | 'pdf'>('text');
   const [text, setText] = useState('');
   const [files, setFiles] = useState<File[]>([]);
   const [isDragging, setIsDragging] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { setEvents } = useEvents();
+  const { toast } = useToast();
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -21,9 +28,52 @@ const UploadPage = () => {
 
   const removeFile = (idx: number) => setFiles(prev => prev.filter((_, i) => i !== idx));
 
-  const handleParse = () => {
-    // In a real app, this would send to an AI backend for parsing
-    navigate('/dashboard');
+  const handleParse = async () => {
+    setIsLoading(true);
+    try {
+      let result;
+      if (mode === 'text') {
+        result = await parseSyllabus(text);
+      } else {
+        result = await uploadPdf(files);
+      }
+
+      if (result.error) {
+        toast({
+          title: 'Parsing Error',
+          description: result.error,
+          variant: 'destructive',
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      const mapped = (result.events || []).map(mapBackendEvent);
+      if (mapped.length === 0) {
+        toast({
+          title: 'No events found',
+          description: 'We couldn\'t extract any events from your syllabus. Try a different format or check the content.',
+          variant: 'destructive',
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      setEvents(mapped);
+      toast({
+        title: 'Syllabus parsed!',
+        description: `Extracted ${mapped.length} events. Redirecting to dashboard...`,
+      });
+      navigate('/dashboard');
+    } catch (err) {
+      toast({
+        title: 'Connection Error',
+        description: 'Could not reach the backend server. Make sure it\'s running on localhost:8000.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -71,6 +121,7 @@ const UploadPage = () => {
                 onChange={(e) => setText(e.target.value)}
                 placeholder={`Paste your syllabus here. Example:\n\nMidterm Exam - April 15, 2026 - 30%\nFinal Exam - June 10, 2026 - 40%\nResearch Paper due 2026-05-01 worth 15%\nProblem Set 1 - 04/01/2026 - 5%\nProblem Set 2 - 2026-04-20 - 5%\nGroup Project due May 20, 2026 - 5%`}
                 className="min-h-[280px] resize-none bg-background font-body text-sm leading-relaxed"
+                disabled={isLoading}
               />
             </motion.div>
           ) : (
@@ -89,7 +140,7 @@ const UploadPage = () => {
                   isDragging
                     ? 'border-accent bg-accent/5 scale-[1.01]'
                     : 'border-border hover:border-muted-foreground/40'
-                }`}
+                } ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}
               >
                 <FileUp className="w-10 h-10 mx-auto mb-4 text-muted-foreground" />
                 <p className="text-foreground font-body font-medium mb-1">
@@ -121,7 +172,7 @@ const UploadPage = () => {
                       <File className="w-4 h-4 text-accent shrink-0" />
                       <span className="text-sm font-body flex-1 truncate">{f.name}</span>
                       <span className="text-xs text-muted-foreground">{(f.size / 1024).toFixed(0)} KB</span>
-                      <button onClick={() => removeFile(i)} className="text-muted-foreground hover:text-foreground">
+                      <button onClick={() => removeFile(i)} className="text-muted-foreground hover:text-foreground" disabled={isLoading}>
                         <X className="w-4 h-4" />
                       </button>
                     </div>
@@ -140,10 +191,19 @@ const UploadPage = () => {
           <Button
             onClick={handleParse}
             className="gap-2 font-body"
-            disabled={mode === 'text' ? !text.trim() : files.length === 0}
+            disabled={isLoading || (mode === 'text' ? !text.trim() : files.length === 0)}
           >
-            Parse Syllabus
-            <ArrowRight className="w-4 h-4" />
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Parsing...
+              </>
+            ) : (
+              <>
+                Parse Syllabus
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
           </Button>
         </div>
       </div>
