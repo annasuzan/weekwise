@@ -1,18 +1,21 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, CalendarDays, AlertTriangle, CheckCircle2, Zap } from 'lucide-react';
+import { BookOpen, CalendarDays, AlertTriangle, CheckCircle2, Plus } from 'lucide-react';
 import { MOCK_EVENTS, type SyllabusEvent } from '@/lib/types';
 import { useEvents } from '@/lib/EventContext';
 import SubjectsSidebar from '@/components/SubjectsSidebar';
 import AdaptiveTimeline from '@/components/AdaptiveTimeline';
 import StressHeatmap from '@/components/StressHeatmap';
 import DailyTodo from '@/components/DailyTodo';
+import WeeklyPlanner from '@/components/WeeklyPlanner';
+import AddTaskDialog from '@/components/AddTaskDialog';
 
 const DashboardPage = () => {
   const { events: contextEvents, hasRealData } = useEvents();
   const [events, setEvents] = useState<SyllabusEvent[]>(hasRealData ? contextEvents : MOCK_EVENTS);
 
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
 
   const toggleComplete = (id: string) => {
     setEvents(prev => prev.map(e => e.id === id ? { ...e, completed: !e.completed } : e));
@@ -21,6 +24,16 @@ const DashboardPage = () => {
   const editEvent = (updated: SyllabusEvent) => {
     setEvents(prev => prev.map(e => e.id === updated.id ? updated : e));
   };
+
+  const addEvent = (newEvent: SyllabusEvent) => {
+    setEvents(prev => [...prev, newEvent]);
+  };
+
+  const deleteEvent = (id: string) => {
+    setEvents(prev => prev.filter(e => e.id !== id));
+  };
+
+  const subjectList = [...new Set(events.map(e => e.subject))];
 
   const totalEvents = events.length;
   const completedEvents = events.filter(e => e.completed).length;
@@ -55,9 +68,12 @@ const DashboardPage = () => {
                 </motion.div>
               ))}
             </div>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 text-accent text-xs font-body font-medium hover:bg-accent/20 transition-colors">
-              <Zap className="w-3.5 h-3.5" />
-              Fix my week
+            <button
+              onClick={() => setAddDialogOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 text-accent text-xs font-body font-medium hover:bg-accent/20 transition-colors"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Add Task
             </button>
           </div>
         </div>
@@ -66,22 +82,25 @@ const DashboardPage = () => {
       {/* 3-zone layout */}
       <div className="container py-6">
         <div className="grid grid-cols-12 gap-6">
-          {/* LEFT: Subjects sidebar */}
+          {/* LEFT: Stress heatmap + Subjects sidebar */}
           <motion.aside
             initial={{ opacity: 0, x: -16 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
-            className="col-span-3"
+            className="col-span-3 space-y-6"
           >
-            <h3 className="text-xs font-display font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-              Subjects
-            </h3>
-            <SubjectsSidebar
-              events={events}
-              selectedSubject={selectedSubject}
-              onSelectSubject={setSelectedSubject}
-              onToggleComplete={toggleComplete}
-            />
+            <StressHeatmap events={events} />
+            <div>
+              <h3 className="text-xs font-display font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+                Subjects
+              </h3>
+              <SubjectsSidebar
+                events={events}
+                selectedSubject={selectedSubject}
+                onSelectSubject={setSelectedSubject}
+                onToggleComplete={toggleComplete}
+              />
+            </div>
           </motion.aside>
 
           {/* CENTER: Adaptive timeline */}
@@ -96,10 +115,11 @@ const DashboardPage = () => {
               selectedSubject={selectedSubject}
               onToggleComplete={toggleComplete}
               onEditEvent={editEvent}
+              onDeleteEvent={deleteEvent}
             />
           </motion.main>
 
-          {/* RIGHT: Daily todo + Stress heatmap */}
+          {/* RIGHT: Daily todo + Weekly planner */}
           <motion.aside
             initial={{ opacity: 0, x: 16 }}
             animate={{ opacity: 1, x: 0 }}
@@ -107,10 +127,17 @@ const DashboardPage = () => {
             className="col-span-3 space-y-6"
           >
             <DailyTodo events={events} onToggleComplete={toggleComplete} />
-            <StressHeatmap events={events} />
+            <WeeklyPlanner events={events} />
           </motion.aside>
         </div>
       </div>
+
+      <AddTaskDialog
+        open={addDialogOpen}
+        onOpenChange={setAddDialogOpen}
+        onAdd={addEvent}
+        subjects={subjectList}
+      />
     </div>
   );
 };

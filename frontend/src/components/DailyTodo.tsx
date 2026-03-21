@@ -63,8 +63,6 @@ const DailyTodo = ({ events, onToggleComplete }: DailyTodoProps) => {
   const toggleTodo = (id: string) => {
     setTodos(prev => prev.map(t => {
       if (t.id === id) {
-        // Also toggle the linked event if exists
-        if (t.eventId && !t.done) onToggleComplete(t.eventId);
         return { ...t, done: !t.done };
       }
       return t;

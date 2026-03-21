@@ -17,13 +17,17 @@ const SUBJECT_COLORS = [
   { bg: "rgba(100, 130, 100, 0.12)", text: "#4a6a4a" },  // forest
 ];
 
+// Track assigned colors by subject name — sequential, no repeats
+const _subjectColorMap = new Map();
+let _nextColorIndex = 0;
+
 function getSubjectColor(subject) {
   if (!subject) return SUBJECT_COLORS[0];
-  let hash = 0;
-  for (let i = 0; i < subject.length; i++) {
-    hash = subject.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return SUBJECT_COLORS[Math.abs(hash) % SUBJECT_COLORS.length];
+  if (_subjectColorMap.has(subject)) return _subjectColorMap.get(subject);
+  const color = SUBJECT_COLORS[_nextColorIndex % SUBJECT_COLORS.length];
+  _subjectColorMap.set(subject, color);
+  _nextColorIndex++;
+  return color;
 }
 
 /**
