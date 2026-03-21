@@ -67,7 +67,7 @@ def get_anthropic_client() -> Optional[object]:
     return anthropic.Anthropic(api_key=api_key)
 
 
-def parse_with_llm(text: str) -> List[Dict]:
+def parse_with_llm(text: str) -> Optional[List[Dict]]:
     """
     Parse syllabus text using Claude to extract structured events.
 
@@ -140,7 +140,7 @@ def parse_with_llm(text: str) -> List[Dict]:
         return regex_parse_syllabus(text)
 
 
-def generate_semester_summary(events: List[Dict], stress: Dict[str, int]) -> str:
+def generate_semester_summary(events: List[Dict], stress: Dict[str, int]) -> Optional[str]:
     """
     Generate an AI-powered semester planning summary based on
     the student's events and weekly stress distribution.
@@ -179,7 +179,7 @@ def generate_semester_summary(events: List[Dict], stress: Dict[str, int]) -> str
         return _fallback_summary(events, stress)
 
 
-def _fallback_summary(events: List[Dict], stress: Dict[str, int]) -> str:
+def _fallback_summary(events: List[Dict], stress: Dict[str, int]) -> Optional[str]:
     """Rule-based summary when no LLM is available."""
     if not stress:
         return "Upload your syllabi to see a personalized semester summary."

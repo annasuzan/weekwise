@@ -7,7 +7,7 @@ Replace this with a real LLM call (e.g. OpenAI) for production use.
 """
 
 import re
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 
 # ── Hardcoded fallback data ─────────────────────────────────────
@@ -74,7 +74,7 @@ MONTH_MAP = {
 }
 
 
-def _normalize_date(raw: str) -> str:
+def _normalize_date(raw: str) -> Optional[str]:
     """Convert various date formats to YYYY-MM-DD."""
     raw = raw.strip()
 
@@ -100,7 +100,7 @@ def _normalize_date(raw: str) -> str:
     return raw  # return as-is if unrecognised
 
 
-def _detect_type(line: str) -> str:
+def _detect_type(line: str) -> Optional[str]:
     """Guess event type from keyword presence."""
     lower = line.lower()
     if any(kw in lower for kw in ["exam", "midterm", "final", "quiz", "test"]):
@@ -108,7 +108,8 @@ def _detect_type(line: str) -> str:
     return "assignment"
 
 
-def _extract_weight(line: str) -> float | None:
+
+def _extract_weight(line: str) -> Optional[float]:
     """Pull percentage weight like '30%' or 'worth 30'."""
     match = re.search(r"(\d{1,3})\s*%", line)
     if match:
@@ -119,7 +120,7 @@ def _extract_weight(line: str) -> float | None:
     return None
 
 
-def _extract_title(line: str, date_str: str) -> str:
+def _extract_title(line: str, date_str: str) -> Optional[str]:
     """
     Build a title from the line by removing the date and weight,
     then cleaning up leftover punctuation.
