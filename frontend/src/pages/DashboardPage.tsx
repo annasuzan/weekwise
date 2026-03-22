@@ -11,27 +11,20 @@ import WeeklyPlanner from '@/components/WeeklyPlanner';
 import AddTaskDialog from '@/components/AddTaskDialog';
 
 const DashboardPage = () => {
-  const { events: contextEvents, hasRealData } = useEvents();
-  const [events, setEvents] = useState<SyllabusEvent[]>(hasRealData ? contextEvents : MOCK_EVENTS);
+  const { 
+    events: contextEvents, 
+    hasRealData,
+    addEvent,
+    editEvent,
+    removeEvent: deleteEvent,
+    toggleComplete
+  } = useEvents();
+
+  // Show mock data if the user hasn't added any real tasks yet
+  const events = hasRealData ? contextEvents : MOCK_EVENTS;
 
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
-
-  const toggleComplete = (id: string) => {
-    setEvents(prev => prev.map(e => e.id === id ? { ...e, completed: !e.completed } : e));
-  };
-
-  const editEvent = (updated: SyllabusEvent) => {
-    setEvents(prev => prev.map(e => e.id === updated.id ? updated : e));
-  };
-
-  const addEvent = (newEvent: SyllabusEvent) => {
-    setEvents(prev => [...prev, newEvent]);
-  };
-
-  const deleteEvent = (id: string) => {
-    setEvents(prev => prev.filter(e => e.id !== id));
-  };
 
   const subjectList = [...new Set(events.map(e => e.subject))];
 

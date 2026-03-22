@@ -64,41 +64,23 @@ export function getSubjectColor(subject: string): SubjectColor {
   return color;
 }
 
-export const MOCK_EVENTS: SyllabusEvent[] = [
-  { id: '1', title: 'Class Participation', subject: 'Big Data', type: 'participation', dueDate: '2026-12-31', weight: 5, completed: false },
-  { id: '2', title: 'Assignment 1', subject: 'Big Data', type: 'assignment', dueDate: '2026-02-01', weight: null, completed: true },
-  { id: '3', title: 'Assignment 2', subject: 'Big Data', type: 'assignment', dueDate: '2026-03-04', weight: null, completed: true },
-  { id: '4', title: 'Midterm', subject: 'Big Data', type: 'exam', dueDate: '2026-03-25', weight: 30, completed: false },
-  { id: '5', title: 'Assignment 3', subject: 'Big Data', type: 'assignment', dueDate: '2026-04-06', weight: null, completed: false },
-  { id: '6', title: 'Assignment 4', subject: 'Big Data', type: 'assignment', dueDate: '2026-04-22', weight: null, completed: false },
-  { id: '7', title: 'Final Project', subject: 'Big Data', type: 'project', dueDate: '2026-05-13', weight: 35, completed: false },
-  { id: '8', title: 'Problem Sets', subject: 'CS6903', type: 'assignment', dueDate: '2026-12-31', weight: 25, completed: false },
-  { id: '9', title: 'Programming Assignments', subject: 'CS6903', type: 'assignment', dueDate: '2026-12-31', weight: null, completed: false },
-  { id: '10', title: 'Project Part I', subject: 'CS6903', type: 'project', dueDate: '2026-04-15', weight: null, completed: false },
-  { id: '11', title: 'Project Part II', subject: 'CS6903', type: 'project', dueDate: '2026-05-01', weight: null, completed: false },
-  { id: '12', title: 'Midterm Exam', subject: 'CS6903', type: 'exam', dueDate: '2026-03-25', weight: 20, completed: false },
-  { id: '13', title: 'Final Exam', subject: 'CS6903', type: 'exam', dueDate: '2026-05-12', weight: 30, completed: false },
-  { id: '14', title: 'Weekly Programming Labs', subject: 'CS-NY 6903', type: 'lab', dueDate: '2026-12-31', weight: 20, completed: false },
-  { id: '15', title: 'Written Problem Sets', subject: 'CS-NY 6903', type: 'assignment', dueDate: '2026-12-31', weight: 20, completed: false },
-  { id: '16', title: 'In-class Midterm', subject: 'CS-NY 6903', type: 'exam', dueDate: '2026-03-15', weight: null, completed: false },
-  { id: '17', title: 'Final Exam', subject: 'CS-NY 6903', type: 'exam', dueDate: '2026-05-15', weight: 25, completed: false },
-];
+export const MOCK_EVENTS: SyllabusEvent[] = [];
 
 export function getWeeklyStress(events: SyllabusEvent[]): { week: number; startDate: string; level: number; events: SyllabusEvent[] }[] {
   const semesterStart = new Date('2026-01-19');
   const weeks: { week: number; startDate: string; level: number; events: SyllabusEvent[] }[] = [];
-  
+
   for (let w = 0; w < 18; w++) {
     const weekStart = new Date(semesterStart);
     weekStart.setDate(weekStart.getDate() + w * 7);
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekEnd.getDate() + 7);
-    
+
     const weekEvents = events.filter(e => {
       const d = new Date(e.dueDate);
       return d >= weekStart && d < weekEnd;
     });
-    
+
     let stress = 0;
     weekEvents.forEach(e => {
       if (e.type === 'exam') stress += 4;
@@ -107,7 +89,7 @@ export function getWeeklyStress(events: SyllabusEvent[]): { week: number; startD
       else stress += 1;
       if (e.weight && e.weight >= 25) stress += 2;
     });
-    
+
     weeks.push({
       week: w + 1,
       startDate: weekStart.toISOString().split('T')[0],
@@ -115,26 +97,26 @@ export function getWeeklyStress(events: SyllabusEvent[]): { week: number; startD
       events: weekEvents,
     });
   }
-  
+
   return weeks;
 }
 
 export function getDailyTimeline(events: SyllabusEvent[]): { date: string; label: string; events: SyllabusEvent[]; isToday: boolean; isPast: boolean }[] {
   const today = new Date('2026-03-21');
   const days: { date: string; label: string; events: SyllabusEvent[]; isToday: boolean; isPast: boolean }[] = [];
-  
+
   for (let d = -1; d < 14; d++) {
     const date = new Date(today);
     date.setDate(date.getDate() + d);
     const dateStr = date.toISOString().split('T')[0];
     const dayEvents = events.filter(e => e.dueDate === dateStr);
-    
+
     let label: string;
     if (d === -1) label = 'Yesterday';
     else if (d === 0) label = 'Today';
     else if (d === 1) label = 'Tomorrow';
     else label = date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: 'UTC' });
-    
+
     days.push({
       date: dateStr,
       label,
@@ -143,6 +125,6 @@ export function getDailyTimeline(events: SyllabusEvent[]): { date: string; label
       isPast: d < 0,
     });
   }
-  
+
   return days;
 }
