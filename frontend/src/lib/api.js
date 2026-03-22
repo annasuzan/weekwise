@@ -5,14 +5,13 @@
 
 const API_BASE = "http://localhost:8000";
 
-/**
- * Parse syllabus text into structured events.
- * Backend uses Claude LLM if API key is set, otherwise regex fallback.
- * @param {string} text - Raw syllabus text
- * @returns {Promise<{events: Array}>}
- */
+const defaultOptions = {
+  credentials: "include",   // ← sends cookie with every request
+};
+
 export async function parseSyllabus(text) {
   const res = await fetch(`${API_BASE}/parse-syllabus`, {
+    ...defaultOptions,
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ text }),
@@ -21,12 +20,6 @@ export async function parseSyllabus(text) {
   return res.json();
 }
 
-/**
- * Upload multiple PDF files for parsing.
- * Backend extracts text from each, combines them, then parses with LLM.
- * @param {File[]} files - Array of PDF file objects
- * @returns {Promise<{events: Array, extracted_text: string, files_processed: string[]}>}
- */
 export async function uploadPdf(files) {
   const formData = new FormData();
   for (const file of files) {
@@ -34,20 +27,19 @@ export async function uploadPdf(files) {
   }
 
   const res = await fetch(`${API_BASE}/upload-pdf`, {
+    ...defaultOptions,
     method: "POST",
-    body: formData,
+    body: formData,           // no Content-Type header — browser sets it automatically for FormData
   });
   if (!res.ok) throw new Error("Failed to upload PDFs");
+
   return res.json();
+
 }
 
-/**
- * Compute weekly stress scores from events.
- * @param {Array} events - List of event objects
- * @returns {Promise<{stress: Object}>}
- */
 export async function computeStress(events) {
   const res = await fetch(`${API_BASE}/compute-stress`, {
+    ...defaultOptions,
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ events }),
@@ -56,14 +48,9 @@ export async function computeStress(events) {
   return res.json();
 }
 
-/**
- * Generate a study plan for a single event.
- * @param {Object} event - The target event
- * @param {number} hoursPerDay - Available hours per day (default 2)
- * @returns {Promise<{plan: Array}>}
- */
 export async function generatePlan(event, hoursPerDay = 2) {
   const res = await fetch(`${API_BASE}/generate-plan`, {
+    ...defaultOptions,
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ event, hours_per_day: hoursPerDay }),
@@ -72,14 +59,9 @@ export async function generatePlan(event, hoursPerDay = 2) {
   return res.json();
 }
 
-/**
- * Generate an AI-powered semester planning summary.
- * @param {Array} events - All parsed events
- * @param {Object} stress - Weekly stress scores
- * @returns {Promise<{summary: string}>}
- */
 export async function generateSummary(events, stress) {
   const res = await fetch(`${API_BASE}/generate-summary`, {
+    ...defaultOptions,
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ events, stress }),
@@ -88,15 +70,9 @@ export async function generateSummary(events, stress) {
   return res.json();
 }
 
-/**
- * Generate a persona-based weekly study plan.
- * @param {Array} events - Academic events for the week
- * @param {string[]} extraActivities - Extra-curricular activities
- * @param {string} persona - "genz" | "gentle" | "drill"
- * @returns {Promise<{plan: string}>}
- */
 export async function generateWeeklyPlan(events, extraActivities, persona) {
   const res = await fetch(`${API_BASE}/weekly-plan`, {
+    ...defaultOptions,
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -106,5 +82,25 @@ export async function generateWeeklyPlan(events, extraActivities, persona) {
     }),
   });
   if (!res.ok) throw new Error("Failed to generate weekly plan");
+  return res.json();
+}
+
+
+/**
+ * Sync events to Google Calendar.
+ * @param {Array} events - List of event objects from uploadPdf/parseSyllabus
+ * @returns {Promise<{synced: number, failed: number, results: Array}>}
+ */
+export async function syncToCalendar(events) {
+  const res = await fetch(`${API_BASE}/sync-calendar`, {
+    ...defaultOptions,
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ events }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || "Failed to sync to calendar");
+  }
   return res.json();
 }

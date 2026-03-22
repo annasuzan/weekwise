@@ -24,6 +24,8 @@ from jose import JWTError, jwt
 from datetime import datetime, timedelta
 
 from models import SyllabusInput, StressRequest, PlanRequest, SummaryRequest, WeeklyPlanRequest
+from googleapiclient.discovery import build
+from google.oauth2.credentials import Credentials
 from llm_parser import parse_with_llm, generate_semester_summary, generate_weekly_plan
 from pdf_parser import extract_text_from_pdf
 from utils import compute_stress_scores, generate_study_plan
@@ -239,3 +241,74 @@ def api_weekly_plan(payload: WeeklyPlanRequest):
 @app.get("/")
 def health():
     return {"status": "ok", "app": "weekwise"}
+
+@app.post("/sync-calendar")
+async def sync_calendar(request: Request, user=Depends(require_auth)):
+    body         = await request.json()
+    events       = body.get("events", [])
+    access_token = user.get("accessToken")
+    refresh_token = user.get("refreshToken")
+
+    if not access_token:
+        raise HTTPException(status_code=401, detail="No Google access token — please log in again")
+
+    creds = Credentials(
+        token=access_token,
+        refresh_token=refresh_token,
+        token_uri="https://oauth2.googleapis.com/token",
+        client_id=GOOGLE_CLIENT_ID,
+        client_secret=GOOGLE_CLIENT_SECRET,
+    )
+    service = build("calendar", "v3", credentials=creds)
+
+    results = []
+    synced  = 0
+    failed  = 0
+
+    for event in events:
+        try:
+            due_date = event.get("due_date") or event.get("dueDate") or ""
+            if not due_date:
+                failed += 1
+                results.append({"event": event.get("title"), "status": "failed", "reason": "No due_date"})
+                continue
+
+            # Build a descriptive title e.g. "Midterm Exam — Linear Algebra (30%)"
+            weight  = event.get("weight")
+            subject = event.get("subject", "")
+            weight_str = f" ({int(weight)}%)" if weight else ""
+            summary = f"{event.get('title', 'Untitled')} — {subject}{weight_str}".strip(" —")
+
+            cal_event = {
+                "summary": summary,
+                "description": (
+                    f"Type: {event.get('type', 'assignment').capitalize()}\n"
+                    f"Subject: {subject}\n"
+                    f"Weight: {f'{int(weight)}%' if weight else 'N/A'}\n"
+                    f"Added by WeekWise"
+                ),
+                "start": { "date": due_date[:10], "timeZone": "America/New_York" },
+                "end":   { "date": due_date[:10], "timeZone": "America/New_York" },
+                "colorId": "11" if event.get("type") == "exam" else "9",  # red for exams, blue for assignments
+                "reminders": {
+                    "useDefault": False,
+                    "overrides": [
+                        {"method": "popup", "minutes": 60 * 24 * 3},   # 3 days before
+                        {"method": "popup", "minutes": 60 * 24},        # 1 day before
+                    ],
+                },
+            }
+
+            created = service.events().insert(calendarId="primary", body=cal_event).execute()
+            synced += 1
+            results.append({
+                "event":  event.get("title"),
+                "status": "synced",
+                "link":   created.get("htmlLink"),
+            })
+
+        except Exception as e:
+            failed += 1
+            results.append({"event": event.get("title"), "status": "failed", "reason": str(e)})
+
+    return {"synced": synced, "failed": failed, "results": results}

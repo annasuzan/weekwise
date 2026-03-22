@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { BookOpen, Upload, LayoutDashboard, CalendarSync, LogOut, ChevronDown } from 'lucide-react';
+import { BookOpen, Upload, LayoutDashboard, LogOut, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -47,30 +47,20 @@ const Navbar = () => {
             </Button>
           </Link>
 
-          {/* Only show Sync to Cal when logged in */}
-          {user && (
-            <Button variant="outline" size="sm" className="gap-2 font-body text-xs ml-2">
-              <CalendarSync className="w-3.5 h-3.5" />
-              Sync to Cal
-            </Button>
-          )}
-
           {/* Auth button area */}
           {loading ? (
-            // Skeleton while checking session
             <div className="ml-1 w-24 h-8 rounded-md bg-muted animate-pulse" />
           ) : user ? (
-            // Logged in — show avatar dropdown
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="gap-2 font-body text-xs ml-2 pl-1">
                   {user.picture && user.picture.length > 0 ? (
                     <img
-                        src={user.picture}
-                        alt={user.name}
-                        className="w-6 h-6 rounded-full object-cover flex-shrink-0"  // ← add flex-shrink-0
-                        referrerPolicy="no-referrer"   // ← add this, Google images need it
-                      />
+                      src={user.picture}
+                      alt={user.name}
+                      className="w-6 h-6 rounded-full object-cover flex-shrink-0"
+                      referrerPolicy="no-referrer"
+                    />
                   ) : (
                     <div className="w-6 h-6 rounded-full bg-accent flex items-center justify-center text-[10px] font-bold text-accent-foreground">
                       {user.name?.charAt(0).toUpperCase() ?? '?'}
@@ -96,7 +86,6 @@ const Navbar = () => {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            // Logged out — show Sign in button
             <Button
               onClick={login}
               variant="default"
