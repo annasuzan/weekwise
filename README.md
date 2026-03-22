@@ -1,4 +1,12 @@
 # Weekwise
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![FastAPI](https://img.shields.io/badge/FastAPI-005571?style=for-the-badge&logo=fastapi&logoColor=white)
+![Claude AI](https://img.shields.io/badge/Claude%20AI-755139?style=for-the-badge&logo=anthropic&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
+![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)
+![Google OAuth](https://img.shields.io/badge/Google%20OAuth-4285F4?style=for-the-badge&logo=google&logoColor=white)
+[![Made with Love and Caffeine](https://img.shields.io/badge/Made%20with%20Love%20and%20Caffeine-9b59b6?style=for-the-badge&logo=coffeescript&logoColor=white)]() 
+<p align="left">By <a href="https://github.com/annasuzan">Anna Susan Cherian</a> & <a href="https://github.com/Pavithra-Rajan">Pavithra Rajan</a></p>
 
 ## Problem Statement
 Students face significant challenges in organizing their academic lives due to the fragmentation of course information across multiple syllabi, platforms, and formats. Manually tracking dozens of deadlines for assignments, exams, and projects often leads to missed dates, increased anxiety, and poor time management. Often enough, some weeks are more hectic than others and there is a need to plan some weeks ahead of time, especially in the middle of a semester or at the end of one. There is a lack of a unified tool that can automatically ingest these documents and translate them into a coherent, stress-aware schedule.
@@ -40,6 +48,22 @@ Weekwise follows a decoupled client-server architecture. The FastAPI backend ser
 
 ![Architecture Diagram](docs/architecture.png)
 
+## Demo 
+### Landing Page
+![alt text](image.png)
+### Upload or Paste Text of your syllabus
+![alt text](image-1.png)
+### Dashboard
+![alt text](image-2.png)
+### Edit/Delete tasks for customizability
+![alt text](image-5.png)
+### Week-wise stress map
+![alt text](image-4.png)
+### Agentic weekly planner
+![alt text](image-3.png)
+![alt text](image-6.png)
+### Sync to Google Calendar
+![alt text](image-7.png)
 ## Future Plans
 1. Database Migration: Transitioning from local storage to Neon Postgres to support cross-device synchronization and more robust data management.
 2. Academic API Integration: Connecting directly to Learning Management Systems like Canvas or Blackboard to fetch updates and grades automatically.
