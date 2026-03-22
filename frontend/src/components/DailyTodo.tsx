@@ -116,9 +116,8 @@ const DailyTodo = ({ events, onToggleComplete }: DailyTodoProps) => {
                 initial={{ opacity: 0, x: -8 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 8, height: 0 }}
-                className={`group flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                  todo.done ? 'opacity-50' : 'hover:bg-secondary/50'
-                }`}
+                className={`group flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${todo.done ? 'opacity-50' : 'hover:bg-secondary/50'
+                  }`}
               >
                 <button onClick={() => toggleTodo(todo.id)} className="shrink-0">
                   {todo.done ? (

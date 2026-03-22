@@ -87,18 +87,16 @@ const UploadPage = () => {
       <div className="flex bg-secondary rounded-lg p-1 w-fit mb-8">
         <button
           onClick={() => setMode('text')}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-md text-sm font-body font-medium transition-all ${
-            mode === 'text' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
-          }`}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-md text-sm font-body font-medium transition-all ${mode === 'text' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+            }`}
         >
           <Type className="w-4 h-4" />
           Paste Text
         </button>
         <button
           onClick={() => setMode('pdf')}
-          className={`flex items-center gap-2 px-5 py-2.5 rounded-md text-sm font-body font-medium transition-all ${
-            mode === 'pdf' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
-          }`}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-md text-sm font-body font-medium transition-all ${mode === 'pdf' ? 'bg-card shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'
+            }`}
         >
           <FileUp className="w-4 h-4" />
           Upload PDFs
@@ -136,11 +134,10 @@ const UploadPage = () => {
                 onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={handleDrop}
-                className={`border-2 border-dashed rounded-xl p-12 text-center transition-all ${
-                  isDragging
-                    ? 'border-accent bg-accent/5 scale-[1.01]'
-                    : 'border-border hover:border-muted-foreground/40'
-                } ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}
+                className={`border-2 border-dashed rounded-xl p-12 text-center transition-all ${isDragging
+                  ? 'border-accent bg-accent/5 scale-[1.01]'
+                  : 'border-border hover:border-muted-foreground/40'
+                  } ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}
               >
                 <FileUp className="w-10 h-10 mx-auto mb-4 text-muted-foreground" />
                 <p className="text-foreground font-body font-medium mb-1">
