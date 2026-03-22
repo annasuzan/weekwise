@@ -50,7 +50,7 @@ const AdaptiveTimeline = ({ events, selectedSubject, onToggleComplete, onEditEve
         </p>
       </div>
 
-      {/* Today section */}
+      {/* Today  sections */}
       <div className="bg-card border border-border rounded-2xl p-5">
         <div className="flex items-center gap-2 mb-4">
           <div className="w-2 h-2 rounded-full bg-accent animate-pulse-soft" />

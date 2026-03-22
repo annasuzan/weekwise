@@ -2,7 +2,7 @@
 weekwise — FastAPI Backend
 
 Endpoints:
-  POST /parse-syllabus   → extract events from syllabus text (LLM or regex)
+  POST /parse-syllabus   → extract events from syllabus text (LLM or regex).
   POST /upload-pdf       → upload PDF, extract text, parse with LLM
   POST /compute-stress   → compute weekly stress scores
   POST /generate-plan    → create a study plan for one event
