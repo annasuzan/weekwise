@@ -50,20 +50,20 @@ Weekwise follows a decoupled client-server architecture. The FastAPI backend ser
 
 ## Demo 
 ### Landing Page
-![alt text](image.png)
+![alt text](docs/image.png)
 ### Upload or Paste Text of your syllabus
-![alt text](image-1.png)
+![alt text](docs/image-1.png)
 ### Dashboard
-![alt text](image-2.png)
+![alt text](docs/image-2.png)
 ### Edit/Delete tasks for customizability
-![alt text](image-5.png)
+![alt text](docs/image-5.png)
 ### Week-wise stress map
-![alt text](image-4.png)
+![alt text](docs/image-4.png)
 ### Agentic weekly planner
-![alt text](image-3.png)
-![alt text](image-6.png)
+![alt text](docs/image-3.png)
+![alt text](docs/image-6.png)
 ### Sync to Google Calendar
-![alt text](image-7.png)
+![alt text](docs/image-7.png)
 ## Future Plans
 1. Database Migration: Transitioning from local storage to Neon Postgres to support cross-device synchronization and more robust data management.
 2. Academic API Integration: Connecting directly to Learning Management Systems like Canvas or Blackboard to fetch updates and grades automatically.
