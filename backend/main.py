@@ -143,16 +143,15 @@ async def google_callback(code: str):
         "refreshToken": tokens.get("refresh_token"),
     })
 
-    response = RedirectResponse(
-        url=f"{FRONTEND_URL}/",
-        status_code=302,
-    )
+    is_production = os.getenv("NODE_ENV") == "production"
+
+    response = RedirectResponse(url=f"{FRONTEND_URL}/", status_code=302)
     response.set_cookie(
         key="token",
         value=jwt_token,
         httponly=True,
-        samesite="none" if os.getenv("NODE_ENV") == "production" else "lax",
-        secure=os.getenv("NODE_ENV") == "production",
+        samesite="none" if is_production else "lax",  
+        secure=is_production,                          
         max_age=7 * 24 * 60 * 60,
     )
     return response
@@ -160,11 +159,12 @@ async def google_callback(code: str):
 
 @app.post("/auth/logout")
 def logout(response: Response):
+    is_production = os.getenv("NODE_ENV") == "production"
     response.delete_cookie(
         key="token",
         httponly=True,
-        samesite="none" if os.getenv("NODE_ENV") == "production" else "lax",
-        secure=os.getenv("NODE_ENV") == "production",
+        samesite="none" if is_production else "lax", 
+        secure=is_production,
     )
     return {"success": True}
 
