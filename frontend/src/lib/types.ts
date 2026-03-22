@@ -102,7 +102,9 @@ export function getWeeklyStress(events: SyllabusEvent[]): { week: number; startD
 }
 
 export function getDailyTimeline(events: SyllabusEvent[]): { date: string; label: string; events: SyllabusEvent[]; isToday: boolean; isPast: boolean }[] {
-  const today = new Date('2026-03-21');
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   const days: { date: string; label: string; events: SyllabusEvent[]; isToday: boolean; isPast: boolean }[] = [];
 
   for (let d = -1; d < 14; d++) {

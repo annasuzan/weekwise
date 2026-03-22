@@ -55,7 +55,9 @@ const AdaptiveTimeline = ({ events, selectedSubject, onToggleComplete, onEditEve
         <div className="flex items-center gap-2 mb-4">
           <div className="w-2 h-2 rounded-full bg-accent animate-pulse-soft" />
           <span className="text-sm font-display font-semibold text-foreground">Tasks due today</span>
-          <span className="text-xs text-muted-foreground font-body">Mar 21</span>
+          <span className="text-xs text-muted-foreground font-body">
+            {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+          </span>
         </div>
         
         {daysWithEvents.find(d => d.isToday)?.events.length ? (

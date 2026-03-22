@@ -26,7 +26,9 @@ const WeeklyPlanner = ({ events }: WeeklyPlannerProps) => {
   const [modalOpen, setModalOpen] = useState(false);
 
   // Get this week's events (next 7 days from today)
-  const today = new Date('2026-03-21');
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   const weekEnd = new Date(today);
   weekEnd.setDate(weekEnd.getDate() + 7);
   const weekEvents = events.filter(e => {

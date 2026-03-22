@@ -22,7 +22,9 @@ const StressHeatmap = ({ events }: StressHeatmapProps) => {
 
   // Determine which week is "now"
   const semesterStart = new Date('2026-01-19');
-  const today = new Date('2026-03-21');
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   const currentWeekIndex = Math.floor((today.getTime() - semesterStart.getTime()) / (7 * 86400000));
 
   return (

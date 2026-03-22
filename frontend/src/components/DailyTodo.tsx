@@ -17,7 +17,10 @@ interface TodoItem {
 }
 
 function generateSuggestedTodos(events: SyllabusEvent[]): TodoItem[] {
-  const today = new Date('2026-03-21');
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayStr = today.toLocaleDateString('en-CA'); // YYYY-MM-DD in local time
+
   const upcoming = events
     .filter(e => !e.completed && new Date(e.dueDate) >= today)
     .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime());
@@ -25,7 +28,7 @@ function generateSuggestedTodos(events: SyllabusEvent[]): TodoItem[] {
   const todos: TodoItem[] = [];
 
   // Tasks due today
-  const dueToday = upcoming.filter(e => e.dueDate === '2026-03-21');
+  const dueToday = upcoming.filter(e => e.dueDate === todayStr);
   dueToday.forEach(e => {
     todos.push({ id: `todo-${e.id}`, label: `Finish "${e.title}" (due today!)`, done: false, eventId: e.id });
   });
