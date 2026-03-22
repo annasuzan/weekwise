@@ -42,10 +42,11 @@ Important rules:
 2. Be precise with dates — parse them carefully from the text.
 3. If the syllabus has a grading breakdown table, use it to assign weights.
 4. If a date range is given (e.g., "Week 5"), estimate the date based on context. If you cannot estimate ensure that you cap the date to May 5th. 
-5. Always include the subject/course name. If multiple syllabi are provided, distinguish events by their source course.
-6. If there is a mention of "Problem Sets" divide into 3 or 4 assignments and distribute the weight equally among them. 
-7. If there is a mention of "Programming Lab" divide it into 5 equal parts. 
-8. Respond with ONLY the JSON array — no other text."""
+5. There are only 14 weeks in a semester. Do not count beyond that. 
+6. Always include the subject/course name. If multiple syllabi are provided, distinguish events by their source course.
+7. If there is a mention of "Problem Sets" divide into 3 or 4 assignments and distribute the weight equally among them. 
+8. If there is a mention of "Programming Lab" divide it into 5 equal parts. 
+9. Respond with ONLY the JSON array — no other text."""
 
 
 SUMMARY_PROMPT = """You are a Gen-Z academic advisor AI. Given a student's semester events and weekly stress scores,
@@ -63,7 +64,8 @@ Keep the summary to 2-3 short paragraphs. Use plain text, no markdown formatting
 
 def get_anthropic_client() -> Optional[object]:
     """Get an Anthropic client if API key is configured."""
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    api_key = os.getenv("ANTHROPIC_API_KEY")
+    print(api_key)
     if not api_key or not HAS_ANTHROPIC:
         return None
     return anthropic.Anthropic(api_key=api_key)
