@@ -1,5 +1,7 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8000';
+
 interface User {
   userId: string;
   email: string;
@@ -21,24 +23,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if already logged in on page load
-    fetch('http://localhost:8000/api/me', { credentials: 'include' })
+    fetch(`${API_BASE}/api/me`, { credentials: 'include' })
       .then(r => r.ok ? r.json() : null)
       .then(data => { setUser(data); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);
 
   const login = () => {
-    window.location.href = 'http://localhost:8000/auth/google';
+    window.location.href = `${API_BASE}/auth/google`;
   };
 
   const logout = async () => {
-    await fetch('http://localhost:8000/auth/logout', {
+    await fetch(`${API_BASE}/auth/logout`, {
       method: 'POST',
-      credentials: 'include',   // ← this is critical, cookie won't send without it
+      credentials: 'include',
     });
     setUser(null);
-    window.location.href = '/'; // ← force a full page reload to clear any cached state
+    window.location.href = '/';
   };
 
   return (

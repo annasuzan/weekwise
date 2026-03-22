@@ -52,6 +52,7 @@ app.add_middleware(
         "http://localhost:3000", "http://127.0.0.1:3000",
         "http://localhost:5173", "http://127.0.0.1:5173",
         "http://localhost:8080", "http://127.0.0.1:8080",
+        "https://weekwise-tan.vercel.app/"
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -146,11 +147,11 @@ async def google_callback(code: str):
         url=f"{FRONTEND_URL}/",
         status_code=302,
     )
-    response.set_cookie(        # ← inside the function, not at module level
+    response.set_cookie(
         key="token",
         value=jwt_token,
         httponly=True,
-        samesite="lax",
+        samesite="none" if os.getenv("NODE_ENV") == "production" else "lax",
         secure=os.getenv("NODE_ENV") == "production",
         max_age=7 * 24 * 60 * 60,
     )
@@ -162,8 +163,8 @@ def logout(response: Response):
     response.delete_cookie(
         key="token",
         httponly=True,
-        samesite="lax",
-        secure=os.getenv("NODE_ENV") == "production",  # ← matches set_cookie
+        samesite="none" if os.getenv("NODE_ENV") == "production" else "lax",
+        secure=os.getenv("NODE_ENV") == "production",
     )
     return {"success": True}
 
