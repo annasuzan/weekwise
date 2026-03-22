@@ -14,7 +14,7 @@ Endpoints:
 
 import os
 from typing import List
-
+from typing import Optional
 import httpx
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException, Request, UploadFile, File
@@ -84,6 +84,17 @@ async def require_auth(request: Request) -> dict:
         return jwt.decode(token, JWT_SECRET, algorithms=[ALGORITHM])
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
+
+
+async def optional_auth(request: Request) -> Optional[dict]:
+    """Dependency that returns user data if cookie present, else None."""
+    token = request.cookies.get("token")
+    if not token:
+        return None
+    try:
+        return jwt.decode(token, JWT_SECRET, algorithms=[ALGORITHM])
+    except JWTError:
+        return None
 
 
 def get_google_auth_url() -> str:
@@ -175,7 +186,7 @@ async def get_me(user=Depends(require_auth)):
 
 # ── Existing routes (now protected) ──────────────────────────────────────────
 @app.post("/parse-syllabus")
-def api_parse_syllabus(payload: SyllabusInput, user=Depends(require_auth)):
+def api_parse_syllabus(payload: SyllabusInput, user=Depends(optional_auth)):
     events = parse_with_llm(payload.text)
     return {"events": events}
 
@@ -183,7 +194,7 @@ def api_parse_syllabus(payload: SyllabusInput, user=Depends(require_auth)):
 @app.post("/upload-pdf")
 async def api_upload_pdf(
     files: List[UploadFile] = File(...),
-    user=Depends(require_auth),         # ← added
+    user=Depends(optional_auth),
 ):
     all_texts  = []
     file_names = []
@@ -209,13 +220,13 @@ async def api_upload_pdf(
 
 
 @app.post("/compute-stress")
-def api_compute_stress(payload: StressRequest, user=Depends(require_auth)):
+def api_compute_stress(payload: StressRequest, user=Depends(optional_auth)):
     stress = compute_stress_scores(payload.events)
     return {"stress": stress}
 
 
 @app.post("/generate-plan")
-def api_generate_plan(payload: PlanRequest, user=Depends(require_auth)):
+def api_generate_plan(payload: PlanRequest, user=Depends(optional_auth)):
     plan = generate_study_plan(
         event=payload.event,
         hours_per_day=payload.hours_per_day,
@@ -224,7 +235,7 @@ def api_generate_plan(payload: PlanRequest, user=Depends(require_auth)):
 
 
 @app.post("/generate-summary")
-def api_generate_summary(payload: SummaryRequest, user=Depends(require_auth)):
+def api_generate_summary(payload: SummaryRequest, user=Depends(optional_auth)):
     summary = generate_semester_summary(payload.events, payload.stress)
     return {"summary": summary}
 

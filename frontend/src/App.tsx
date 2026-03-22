@@ -27,12 +27,8 @@ const App = () => (
               <Navbar />
               <Routes>
                 <Route path="/" element={<Index />} />
-                <Route path="/upload" element={
-                  <ProtectedRoute><UploadPage /></ProtectedRoute>
-                } />
-                <Route path="/dashboard" element={
-                  <ProtectedRoute><DashboardPage /></ProtectedRoute>
-                } />
+                <Route path="/upload" element={<UploadPage />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </SyncProvider>
